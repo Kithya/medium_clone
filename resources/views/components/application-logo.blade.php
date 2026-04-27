@@ -1,0 +1,1 @@
+<img src="/medium.png" class="w-40">
