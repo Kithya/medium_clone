@@ -21,22 +21,20 @@
                         </div>
                     </div>
 
-                    <div x-data="{
-                    following: {{ $user->isFollowedBy(auth()->user()) ? 'true' : 'false' }},
-                    }" class="w-[320px] border-l px-8">
+                    <x-follow-container :user="$user">
                         <x-user-avatar :user="$user" size="w-24 h-24 ml-[-10px]" />
 
                         <h3>{{ $user->name }}</h3>
-                        <p class="text-gray-400">{{ $user->followers()->count() }} follower</p>
+                        <p class="text-gray-400"><span x-text="followersCount"></span> follower</p>
                         <p class="mt-3">{{ $user->bio }}</p>
 
                         @if (auth()->user() && auth()->user()->id !== $user->id)
                             <div class="mt-5">
                                 <button class="px-5 py-2 bg-black text-white rounded-full"
-                                    x-text="following ? 'Unfollow' : 'Follow'">Follow</button>
+                                    x-text="following ? 'Unfollow' : 'Follow'" @click="follow()"></button>
                             </div>
                         @endif
-                    </div>
+                    </x-follow-container>
                 </div>
             </div>
         </div>
