@@ -8,11 +8,14 @@ use Illuminate\Support\Facades\Storage;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
+use Spatie\Sluggable\HasSlug;
+use Spatie\Sluggable\SlugOptions;
 
 class Post extends Model implements HasMedia
 {
     use HasFactory;
     use InteractsWithMedia;
+    use HasSlug;
 
     protected $fillable = [
         // 'image',
@@ -37,6 +40,15 @@ class Post extends Model implements HasMedia
         $this
             ->addMediaConversion('large')
             ->width(1200);
+    }
+
+    
+
+    public function getSlugOptions(): SlugOptions
+    {
+        return SlugOptions::create()
+            ->generateSlugsFrom('name')
+            ->saveSlugsTo('slug');
     }
 
     public function claps()
@@ -68,7 +80,7 @@ class Post extends Model implements HasMedia
 
     public function imageUrl($conversionName = '')
     {
-        if ($media = $this->getFirstMedia()) {
+        if ($media = $this->getFirstMedia('default')) {
             return $conversionName
                 ? $media->getAvailableUrl([$conversionName])
                 : $media->getUrl();

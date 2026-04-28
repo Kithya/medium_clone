@@ -23,7 +23,7 @@ class PostCreateRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'image' => [$this->isMethod('post') ? 'required' : 'nullable', 'image', 'mimes:jpeg,png,jpg,gif,svg', 'max:2048'],
             'title' => 'required',
             'content' => 'required',
             'category_id' => 'required|exists:categories,id',

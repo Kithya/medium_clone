@@ -53,7 +53,8 @@ class PostController extends Controller
         $data = $request->validated();
 
         $data['user_id'] = Auth::id();
-        $data['slug'] = Str::slug($data['title']);
+        // $data['slug'] = Str::slug($data['title']);
+        
         unset($data['image']);
 
         $post = Post::create($data);
@@ -80,15 +81,38 @@ class PostController extends Controller
      */
     public function edit(Post $post)
     {
-        //
+        $categories = Category::get();
+        if ($post->user_id !== Auth::id()) {
+            abort(403);
+        }
+        return view('post.edit', ['post' => $post, 'categories' => $categories]);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Post $post)
+    public function update(PostCreateRequest $request, Post $post)
     {
-        //
+        if ($post->user_id !== Auth::id()) {
+            abort(403);
+        }
+
+        $data = $request->validated();
+        unset($data['image']);
+
+        $post->update($data);
+
+        if ($request->hasFile('image')) {
+            $post->clearMediaCollection();
+
+            $media = $post->addMediaFromRequest('image')
+                ->preservingOriginal()
+                ->toMediaCollection('default', 'public');
+
+            $post->forceFill(['image' => $media->getPathRelativeToRoot()])->save();
+        }
+
+        return redirect()->route('myPosts');
     }
 
     /**
@@ -96,12 +120,29 @@ class PostController extends Controller
      */
     public function destroy(Post $post)
     {
-        //
+        if ($post->user_id !== Auth::id()) {
+            abort(403);
+        }
+        $post->delete();
+
+        return redirect()->route('dashboard');
     }
 
     public function category(Category $category)
     {
         $posts = $category->posts()
+            ->with(['user', 'media'])
+            ->withCount('claps')
+            ->latest()
+            ->simplePaginate(5);
+
+        return view('post.index', ['posts' => $posts]);
+    }
+
+    public function myPosts()
+    {
+        $user = auth()->user();
+        $posts = $user->posts()
             ->with(['user', 'media'])
             ->withCount('claps')
             ->latest()

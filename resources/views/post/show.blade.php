@@ -24,13 +24,26 @@
                             </span>
                             &middot;
                             <span class="text-gray-500">
-                                {{ $post->created_at->format('M d, Y') }}
+                                {{ $post->createdAt() }}
                             </span>
                         </div>
                     </div>
-
-
                 </div>
+
+                @if ($post->user_id === Auth::id())
+                    <div class="mt-6">
+                        <x-primary-button href="{{ route('post.edit', $post) }}">
+                            Edit Post
+                        </x-primary-button>
+                        <form class="inline-block" action="{{ route('post.destroy', $post) }}" method="POST">
+                            @csrf
+                            @method('DELETE')
+                            <x-danger-button>
+                                Delete Post
+                            </x-danger-button>
+                        </form>
+                    </div>
+                @endif
                 {{-- Clap Section --}}
                 <x-clap-button :post="$post" />
 
