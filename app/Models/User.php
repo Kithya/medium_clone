@@ -9,11 +9,14 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Storage;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
-class User extends Authenticatable implements MustVerifyEmail
+class User extends Authenticatable implements HasMedia, MustVerifyEmail
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory, InteractsWithMedia, Notifiable;
 
     /**
      * The attributes that are mass assignable.
@@ -52,6 +55,23 @@ class User extends Authenticatable implements MustVerifyEmail
         ];
     }
 
+    public function registerMediaConversions(?Media $media = null): void
+    {
+        if (! $this->canGenerateImageConversions()) {
+            return;
+        }
+
+        $this
+            ->addMediaConversion('avatar')
+            ->width(128)
+            ->crop(128, 128);
+    }
+
+    public function registerMediaCollections(): void
+    {
+        $this->addMediaCollection('avatar')->singleFile();
+    }
+
     public function posts()
     {
         return $this->hasMany(Post::class);
@@ -69,10 +89,19 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function imageUrl()
     {
-        if ($this->image) {
-            return Storage::url($this->image);
+        if ($media = $this->getFirstMedia('avatar')) {
+            return $media->getAvailableUrl(['avatar']);
         }
-        return null;
+
+        if (! $this->image) {
+            return null;
+        }
+
+        if (str_starts_with($this->image, 'http://') || str_starts_with($this->image, 'https://') || str_starts_with($this->image, '/')) {
+            return $this->image;
+        }
+
+        return Storage::disk('public')->url($this->image);
     }
 
     public function isFollowedBy(?User $user)
@@ -80,11 +109,22 @@ class User extends Authenticatable implements MustVerifyEmail
         if (! $user) {
             return false;
         }
+
         return $this->followers()->where('follower_id', $user->id)->exists();
     }
 
     public function hasClapped(Post $post)
     {
         return $post->claps()->where('user_id', $this->id)->exists();
+    }
+
+    protected function canGenerateImageConversions(): bool
+    {
+        return match (config('media-library.image_driver', 'gd')) {
+            'gd' => function_exists('imagecreatefromstring'),
+            'imagick' => extension_loaded('imagick'),
+            'vips' => extension_loaded('vips'),
+            default => false,
+        };
     }
 }

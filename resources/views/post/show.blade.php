@@ -12,9 +12,11 @@
                         <x-follow-container :user="$post->user" class="flex gap-2">
                             <a href="{{ route('profile.show', $post->user) }}"
                                 class="hover:underline">{{ $post->user->name }}</a>
-                            &middot;
-                            <button class="text-purple-500 hover:underline" x-text="following ? 'Unfollow' : 'Follow' "
-                                @click="follow()"></button>
+                            @auth
+                                &middot;
+                                <button class="text-purple-500 hover:underline" x-text="following ? 'Unfollow' : 'Follow' "
+                                    @click="follow()"></button>
+                            @endauth
                         </x-follow-container>
                         <div class="flex gap-2 text-sm">
                             <span class="text-gray-500">
@@ -33,7 +35,10 @@
                 <x-clap-button :post="$post" />
 
                 <div class="mt-6">
-                    <img src="{{ $post->imageUrl() }}" alt="{{ $post->title }}" class="w-full">
+                    @if ($post->imageUrl('large'))
+                        <img src="{{ $post->imageUrl('large') }}" alt="{{ $post->title }}" class="w-full">
+                    @endif
+
                     <div class="mt-4">
                         {{ $post->content }}
                     </div>

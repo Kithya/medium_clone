@@ -5,20 +5,39 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
-class Post extends Model
+class Post extends Model implements HasMedia
 {
     use HasFactory;
+    use InteractsWithMedia;
 
     protected $fillable = [
-        'image',
+        // 'image',
         'title',
         'slug',
         'content',
         'category_id',
         'user_id',
-        'published_at'
+        'published_at',
     ];
+
+    public function registerMediaConversions(?Media $media = null): void
+    {
+        if (! $this->canGenerateImageConversions()) {
+            return;
+        }
+
+        $this
+            ->addMediaConversion('preview')
+            ->width(400);
+
+        $this
+            ->addMediaConversion('large')
+            ->width(1200);
+    }
 
     public function claps()
     {
@@ -38,14 +57,41 @@ class Post extends Model
     public function readTime()
     {
         $words = str_word_count($this->content);
+
         return ceil($words / 200);
     }
 
-    public function imageUrl()
+    public function createdAt()
     {
-        if ($this->image) {
-            return Storage::url($this->image);
+        return $this->created_at->format('M d, Y');
+    }
+
+    public function imageUrl($conversionName = '')
+    {
+        if ($media = $this->getFirstMedia()) {
+            return $conversionName
+                ? $media->getAvailableUrl([$conversionName])
+                : $media->getUrl();
         }
-        return null;
+
+        if (! $this->image) {
+            return null;
+        }
+
+        if (str_starts_with($this->image, 'http://') || str_starts_with($this->image, 'https://') || str_starts_with($this->image, '/')) {
+            return $this->image;
+        }
+
+        return Storage::disk('public')->url($this->image);
+    }
+
+    protected function canGenerateImageConversions(): bool
+    {
+        return match (config('media-library.image_driver', 'gd')) {
+            'gd' => function_exists('imagecreatefromstring'),
+            'imagick' => extension_loaded('imagick'),
+            'vips' => extension_loaded('vips'),
+            default => false,
+        };
     }
 }
