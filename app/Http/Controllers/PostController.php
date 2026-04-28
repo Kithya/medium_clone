@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\PostCreateRequest;
+use App\Http\Requests\PostUpdateRequest;
 use App\Models\Category;
 use App\Models\Post;
 use Illuminate\Http\Request;
@@ -21,10 +22,10 @@ class PostController extends Controller
             ->withCount('claps')
             ->latest();
 
-        if ($user) {
-            $ids = $user->following()->pluck('users.id');
-            $query->whereIn('user_id', $ids);
-        }
+        // if ($user) {
+        //     $ids = $user->following()->pluck('users.id');
+        //     $query->whereIn('user_id', $ids);
+        // }
 
         $posts = $query->paginate(5);
 
@@ -91,7 +92,7 @@ class PostController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(PostCreateRequest $request, Post $post)
+    public function update(PostUpdateRequest $request, Post $post)
     {
         if ($post->user_id !== Auth::id()) {
             abort(403);

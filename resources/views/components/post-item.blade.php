@@ -1,10 +1,24 @@
- <a href="{{ route('post.show', ['username' => $post->user->username, 'post' => $post->slug]) }}"
-     class="flex flex-col items-center bg-neutral-primary-soft p-4 border-b border-b-gray-200 rounded-base shadow-xs md:flex-row md:max-w-4xl">
+ <article
+     class="relative flex flex-col items-center bg-neutral-primary-soft p-4 border-b border-b-gray-200 rounded-base shadow-xs md:flex-row md:max-w-4xl">
+     <a href="{{ route('post.show', ['username' => $post->user->username, 'post' => $post->slug]) }}"
+         class="absolute inset-0 z-0" aria-label="{{ $post->title }}"></a>
      <div class="flex flex-col justify-between md:p-4 leading-normal">
          <h5 class="mb-2 text-2xl font-bold tracking-tight text-heading">{{ $post->title }}</h5>
          <p class="mb-4 max-w-xl">{{ $post->content }}</p>
          <div class="text-sm text-gray-400 flex items-center gap-2">
-             {{ $post->createdAt() }}
+             {{-- <img src="{{ $post->user->imageUrl() }}" alt="{{ $post->user->name }}" class="w-8 h-8 rounded-full"> --}}
+
+             <div class="flex flex-col">
+                 <a href="{{ route('profile.show', $post->user) }}" class="relative z-10 hover:underline">
+                     {{ $post->user->name }}
+                 </a>
+             </div>
+             <span>
+                 &middot;
+             </span>
+             <span>
+                 {{ $post->createdAt() }}
+             </span>
              <span>
                  &middot;
              </span>
@@ -27,4 +41,4 @@
      <img class="object-cover w-full h-36 md:h-30 mb-4 md:mb-5 md:w-60"
          src="{{ $post->imageUrl('preview') ?? 'https://flowbite.com/docs/images/blog/image-4.jpg' }}"
          alt="{{ $post->title }}">
- </a>
+ </article>
