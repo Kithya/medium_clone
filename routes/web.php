@@ -28,7 +28,7 @@ Route::get('/@{username}/{post:slug}', [PostController::class, 'show'])
 Route::get('/category/{category}', [PostController::class, 'category'])
     ->name('post.byCategory');
     
-Route::middleware(['auth', 'verified'])->group(function () {
+Route::middleware('auth')->group(function () {
 
 
     Route::get('/post/create', [PostController::class, 'create'])

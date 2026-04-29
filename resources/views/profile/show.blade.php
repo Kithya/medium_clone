@@ -10,7 +10,7 @@
             <div class="p-4 sm:p-8 bg-white shadow sm:rounded-lg">
                 <div class="flex">
                     <div class="flex-1 pr-7">
-                        <h1 class="text-5xl text-bold">{{ $user->name }}</h1>
+                        <h1 class="text-5xl text-bold border-b p-5">{{ $user->name }}</h1>
 
                         <div class="mt-6">
                             @forelse ($posts as $post)

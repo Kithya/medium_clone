@@ -6,7 +6,7 @@ use App\Models\User;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 
-test('authenticated verified users can create posts', function () {
+test('authenticated users can create posts', function () {
     Storage::fake('public');
 
     $user = User::factory()->create();
