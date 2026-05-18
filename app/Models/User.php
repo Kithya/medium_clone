@@ -88,7 +88,11 @@ class User extends Authenticatable implements HasMedia
     public function imageUrl()
     {
         if ($media = $this->getFirstMedia('avatar')) {
-            return $media->getAvailableUrl(['avatar']);
+            $url = $media->hasGeneratedConversion('avatar')
+                ? $media->getUrl('avatar')
+                : $media->getUrl();
+
+            return $this->localPublicUrl($url);
         }
 
         if (! $this->image) {
@@ -100,6 +104,17 @@ class User extends Authenticatable implements HasMedia
         }
 
         return Storage::disk('public')->url($this->image);
+    }
+
+    protected function localPublicUrl(string $url): string
+    {
+        $path = parse_url($url, PHP_URL_PATH);
+
+        if ($path && str_starts_with($path, '/storage/')) {
+            return $path;
+        }
+
+        return $url;
     }
 
     public function isFollowedBy(?User $user)

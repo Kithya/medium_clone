@@ -31,5 +31,6 @@ test('authenticated users can create posts', function () {
     expect($post->slug)->toBe('my-first-post');
     expect($post->category_id)->toBe($category->id);
     expect($post->user_id)->toBe($user->id);
+    expect($post->imageUrl())->toStartWith('/storage/');
     Storage::disk('public')->assertExists($post->image);
 });

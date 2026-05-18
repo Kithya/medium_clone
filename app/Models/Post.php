@@ -87,9 +87,11 @@ class Post extends Model implements HasMedia
     public function imageUrl($conversionName = '')
     {
         if ($media = $this->getFirstMedia('default')) {
-            return $conversionName
-                ? $media->getAvailableUrl([$conversionName])
+            $url = $conversionName && $media->hasGeneratedConversion($conversionName)
+                ? $media->getUrl($conversionName)
                 : $media->getUrl();
+
+            return $this->localPublicUrl($url);
         }
 
         if (! $this->image) {
@@ -101,6 +103,17 @@ class Post extends Model implements HasMedia
         }
 
         return Storage::disk('public')->url($this->image);
+    }
+
+    protected function localPublicUrl(string $url): string
+    {
+        $path = parse_url($url, PHP_URL_PATH);
+
+        if ($path && str_starts_with($path, '/storage/')) {
+            return $path;
+        }
+
+        return $url;
     }
 
     protected function canGenerateImageConversions(): bool
