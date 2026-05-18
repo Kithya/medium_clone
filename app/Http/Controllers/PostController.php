@@ -6,6 +6,7 @@ use App\Http\Requests\PostCreateRequest;
 use App\Http\Requests\PostUpdateRequest;
 use App\Models\Category;
 use App\Models\Post;
+use App\Support\MediaDisk;
 use Illuminate\Support\Facades\Auth;
 
 class PostController extends Controller
@@ -51,7 +52,7 @@ class PostController extends Controller
         $post = Post::create($data);
         $media = $post->addMediaFromRequest('image')
             ->preservingOriginal()
-            ->toMediaCollection('default', 'public');
+            ->toMediaCollection('default', MediaDisk::name());
         $post->forceFill(['image' => $media->getPathRelativeToRoot()])->save();
 
         return redirect()->route('dashboard');
@@ -107,7 +108,7 @@ class PostController extends Controller
 
             $media = $post->addMediaFromRequest('image')
                 ->preservingOriginal()
-                ->toMediaCollection('default', 'public');
+                ->toMediaCollection('default', MediaDisk::name());
 
             $post->forceFill(['image' => $media->getPathRelativeToRoot()])->save();
         }

@@ -7,6 +7,7 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 
 test('authenticated users can create posts', function () {
+    config(['filesystems.default' => 'local']);
     Storage::fake('public');
 
     $user = User::factory()->create();

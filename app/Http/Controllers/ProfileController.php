@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ProfileUpdateRequest;
+use App\Support\MediaDisk;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -36,7 +37,7 @@ class ProfileController extends Controller
         if ($request->hasFile('image')) {
             $user->addMediaFromRequest('image')
                 ->preservingOriginal()
-                ->toMediaCollection('avatar');
+                ->toMediaCollection('avatar', MediaDisk::name());
         }
 
         return Redirect::route('profile.edit')->with('status', 'profile-updated');
