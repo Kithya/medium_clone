@@ -1,29 +1,22 @@
 <x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Profile') }}
-        </h2>
-    </x-slot>
+    <div class="mx-auto max-w-3xl px-4 py-10 sm:px-6 lg:px-8">
+        <header class="border-b border-neutral-200 pb-6">
+            <h1 class="text-4xl font-semibold tracking-normal text-neutral-950">Settings</h1>
+            <p class="mt-3 text-base leading-7 text-neutral-600">Manage how readers see you and keep your account secure.</p>
+        </header>
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
-            <div class="p-4 sm:p-8 bg-white shadow sm:rounded-lg">
-                <div class="max-w-xl">
-                    @include('profile.partials.update-profile-information-form')
-                </div>
-            </div>
+        <div class="mt-8 space-y-10">
+            <section class="border-b border-neutral-200 pb-10">
+                @include('profile.partials.update-profile-information-form')
+            </section>
 
-            <div class="p-4 sm:p-8 bg-white shadow sm:rounded-lg">
-                <div class="max-w-xl">
-                    @include('profile.partials.update-password-form')
-                </div>
-            </div>
+            <section class="border-b border-neutral-200 pb-10">
+                @include('profile.partials.update-password-form')
+            </section>
 
-            <div class="p-4 sm:p-8 bg-white shadow sm:rounded-lg">
-                <div class="max-w-xl">
-                    @include('profile.partials.delete-user-form')
-                </div>
-            </div>
+            <section>
+                @include('profile.partials.delete-user-form')
+            </section>
         </div>
     </div>
 </x-app-layout>

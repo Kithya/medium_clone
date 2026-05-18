@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
@@ -70,7 +71,12 @@ class Post extends Model implements HasMedia
     {
         $words = str_word_count($this->content);
 
-        return ceil($words / 200);
+        return max(1, ceil($words / 200));
+    }
+
+    public function excerpt(int $words = 36)
+    {
+        return Str::words(strip_tags($this->content), $words);
     }
 
     public function createdAt()

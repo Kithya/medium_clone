@@ -1,11 +1,11 @@
 <section>
     <header>
-        <h2 class="text-lg font-medium text-gray-900">
+        <h2 class="text-xl font-semibold text-neutral-950">
             {{ __('Profile Information') }}
         </h2>
 
-        <p class="mt-1 text-sm text-gray-600">
-            {{ __("Update your account's profile information and email address.") }}
+        <p class="mt-2 text-sm leading-6 text-neutral-600">
+            {{ __('Update your name, handle, photo, bio, and email address.') }}
         </p>
     </header>
 
@@ -13,45 +13,44 @@
         @csrf
         @method('patch')
 
-        @if ($user->imageUrl())
-            <div>
-                <img src="{{ $user->imageUrl() }}" alt="{{ $user->name }}" class="rounded-full w-20 h-20">
+        <div class="flex items-center gap-4">
+            <x-user-avatar :user="$user" size="h-16 w-16" />
+            <div class="text-sm text-neutral-600">
+                <p class="font-medium text-neutral-950">{{ $user->name }}</p>
+                <p>@{{ $user->username }}</p>
             </div>
-        @endif
+        </div>
 
         <div>
             <x-input-label for="image" :value="__('Avatar')" />
-            <x-text-input id="image" class="block mt-1 w-full border" type="file" name="image"
-                :value="old('image')" autofocus />
+            <x-text-input id="image" class="mt-2 block w-full" type="file" name="image" accept="image/*" />
             <x-input-error :messages="$errors->get('image')" class="mt-2" />
         </div>
 
         <div>
             <x-input-label for="name" :value="__('Name')" />
-            <x-text-input id="name" name="name" type="text" class="mt-1 block w-full" :value="old('name', $user->name)"
+            <x-text-input id="name" name="name" type="text" class="mt-2 block w-full" :value="old('name', $user->name)"
                 required autofocus autocomplete="name" />
             <x-input-error class="mt-2" :messages="$errors->get('name')" />
         </div>
 
         <div>
             <x-input-label for="username" :value="__('Username')" />
-            <x-text-input id="username" name="username" type="text" class="mt-1 block w-full" :value="old('username', $user->username)"
+            <x-text-input id="username" name="username" type="text" class="mt-2 block w-full" :value="old('username', $user->username)"
                 required autofocus autocomplete="username" />
             <x-input-error class="mt-2" :messages="$errors->get('username')" />
         </div>
 
         <div>
             <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" name="email" type="email" class="mt-1 block w-full" :value="old('email', $user->email)"
+            <x-text-input id="email" name="email" type="email" class="mt-2 block w-full" :value="old('email', $user->email)"
                 required autocomplete="username" />
             <x-input-error class="mt-2" :messages="$errors->get('email')" />
         </div>
 
-        {{-- Bio --}}
-        <div class="mt-4">
+        <div>
             <x-input-label for="bio" :value="__('Bio')" />
-            <x-input-textarea id="bio" class="block mt-1 w-full" type="bio" name="bio"
-                autofocus>{{ old('bio', $user->bio) }}</x-input-textarea>
+            <x-input-textarea id="bio" class="mt-2 block w-full" name="bio">{{ old('bio', $user->bio) }}</x-input-textarea>
             <x-input-error :messages="$errors->get('bio')" class="mt-2" />
         </div>
 
@@ -60,7 +59,7 @@
 
             @if (session('status') === 'profile-updated')
                 <p x-data="{ show: true }" x-show="show" x-transition x-init="setTimeout(() => show = false, 2000)"
-                    class="text-sm text-gray-600">{{ __('Saved.') }}</p>
+                    class="text-sm text-neutral-600">{{ __('Saved.') }}</p>
             @endif
         </div>
     </form>

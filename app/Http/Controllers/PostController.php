@@ -6,9 +6,7 @@ use App\Http\Requests\PostCreateRequest;
 use App\Http\Requests\PostUpdateRequest;
 use App\Models\Category;
 use App\Models\Post;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Str;
 
 class PostController extends Controller
 {
@@ -17,17 +15,10 @@ class PostController extends Controller
      */
     public function index()
     {
-        $user = auth()->user();
-        $query = Post::with(['user', 'media'])
+        $posts = Post::with(['user', 'media', 'category'])
             ->withCount('claps')
-            ->latest();
-
-        // if ($user) {
-        //     $ids = $user->following()->pluck('users.id');
-        //     $query->whereIn('user_id', $ids);
-        // }
-
-        $posts = $query->paginate(5);
+            ->latest()
+            ->paginate(8);
 
         return view('post.index', [
             'posts' => $posts,
@@ -54,8 +45,7 @@ class PostController extends Controller
         $data = $request->validated();
 
         $data['user_id'] = Auth::id();
-        // $data['slug'] = Str::slug($data['title']);
-        
+
         unset($data['image']);
 
         $post = Post::create($data);
@@ -72,6 +62,12 @@ class PostController extends Controller
      */
     public function show(string $username, Post $post)
     {
+        $post->loadMissing(['user', 'media', 'category'])->loadCount('claps');
+
+        if ($post->user->username !== $username) {
+            abort(404);
+        }
+
         return view('post.show', [
             'post' => $post,
         ]);
@@ -82,10 +78,13 @@ class PostController extends Controller
      */
     public function edit(Post $post)
     {
-        $categories = Category::get();
         if ($post->user_id !== Auth::id()) {
             abort(403);
         }
+
+        $post->loadMissing(['user', 'media', 'category']);
+        $categories = Category::get();
+
         return view('post.edit', ['post' => $post, 'categories' => $categories]);
     }
 
@@ -132,10 +131,10 @@ class PostController extends Controller
     public function category(Category $category)
     {
         $posts = $category->posts()
-            ->with(['user', 'media'])
+            ->with(['user', 'media', 'category'])
             ->withCount('claps')
             ->latest()
-            ->simplePaginate(5);
+            ->paginate(8);
 
         return view('post.index', ['posts' => $posts]);
     }
@@ -144,10 +143,10 @@ class PostController extends Controller
     {
         $user = auth()->user();
         $posts = $user->posts()
-            ->with(['user', 'media'])
+            ->with(['user', 'media', 'category'])
             ->withCount('claps')
             ->latest()
-            ->simplePaginate(5);
+            ->paginate(8);
 
         return view('post.index', ['posts' => $posts]);
     }

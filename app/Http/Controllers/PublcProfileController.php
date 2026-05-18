@@ -3,13 +3,19 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
-use Illuminate\Http\Request;
 
 class PublcProfileController extends Controller
 {
     public function show(User $user)
     {
-        $posts = $user->posts()->latest()->paginate();
+        $user->loadCount('followers');
+
+        $posts = $user->posts()
+            ->with(['user', 'media', 'category'])
+            ->withCount('claps')
+            ->latest()
+            ->paginate(8);
+
         return view('profile.show', ['user' => $user, 'posts' => $posts]);
     }
 }
